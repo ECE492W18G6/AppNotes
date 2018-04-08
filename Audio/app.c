@@ -30,6 +30,7 @@
 * Modifications	: Nancy Minderman nancy.minderman@ualberta.ca, Brendan Bruner bbruner@ualberta.ca
 * 				  Changes to this project include scatter file changes and BSP changes for port from
 * 				  Cyclone V dev kit board to DE1-SoC
+* 				  Adam Narten and Oliver Rarog for the DE1-SoC Audio Codec App Notes Example
 *********************************************************************************************************
 * Note(s)       : none.
 *********************************************************************************************************
@@ -83,6 +84,7 @@
 */
 
 CPU_STK AppTaskStartStk[TASK_STACK_SIZE];
+INT32S buffer[SAMPLING_RATE];
 
 
 /*
@@ -184,10 +186,8 @@ static  void  AppTaskStart (void *p_arg)
 	write_audio_cfg_register(0x5, 0x06);
 	write_audio_cfg_register(0x6, 0x00);
 	write_audio_cfg_register(0x7, 0x4D);
-	write_audio_cfg_register(0x8, 0x18);
+	write_audio_cfg_register(0x8, 0x18); // bits 5:2 config based on sampling rate. Use 0x18 for 32kHz and 0x20 for 44.1kHz
 	write_audio_cfg_register(0x9, 0x01);
-
-    INT32S* buffer = (INT32S*) malloc(SAMPLING_RATE * sizeof(INT32S)); // allocate space for audio buffer
 
 	int i;
 	for(i = 0; i < SAMPLING_RATE; i++) { // generate a sine wave of approximately A4
@@ -197,7 +197,7 @@ static  void  AppTaskStart (void *p_arg)
 	for(;;) {
 		BSP_WatchDog_Reset();                                   /* Reset the watchdog.                                  */
 
-		write_audio_data(buffer, SAMPLING_RATE); // write to the audio codec
+		write_audio_data(buffer, SAMPLING_RATE); // write to the audio codec continuously
 	}
 
 }
