@@ -30,7 +30,7 @@
 * Modifications	: Nancy Minderman nancy.minderman@ualberta.ca, Brendan Bruner bbruner@ualberta.ca
 * 				  Changes to this project include scatter file changes and BSP changes for port from
 * 				  Cyclone V dev kit board to DE1-SoC
-* Application Notes Modifications: Adam Narten
+* Application Notes Modifications: Adam Narten for using the peripheral buttons
 *********************************************************************************************************
 * Note(s)       : none.
 *********************************************************************************************************
@@ -59,6 +59,7 @@
 #include  <socal.h>
 #include  <hwlib.h>
 
+#include "button.h"
 
 // Compute absolute address of any slave component attached to lightweight bridge
 // base is address of component in QSYS window
@@ -69,11 +70,6 @@
 
 #define APP_TASK_PRIO 5
 #define TASK_STACK_SIZE 4096
-
-#define LEDR_ADD 0x00000000
-#define LEDR_BASE FPGA_TO_HPS_LW_ADDR(LEDR_ADD)
-#define BUTTONS_ADD 0x200
-#define BUTTONS_BASE FPGA_TO_HPS_LW_ADDR(BUTTONS_ADD)
 
 /*
 *********************************************************************************************************
@@ -170,30 +166,25 @@ static  void  AppTaskStart (void *p_arg)
 
     BSP_OS_TmrTickInit(OS_TICKS_PER_SEC);                       /* Configure and enable OS tick interrupt.              */
 
-    long ButtonsPressed;
-    alt_write_word(BUTTONS_BASE, 0);
-
     for(;;) {
-        BSP_WatchDog_Reset();                                   /* Reset the watchdog.                                  */
+		BSP_WatchDog_Reset();                                   /* Reset the watchdog.                                  */
 
-        ButtonsPressed = alt_read_word(BUTTONS_BASE);
-        alt_write_word(LEDR_BASE, ButtonsPressed);
-        if (ButtonsPressed != 0xf) { // Handle statements for different button presses.
-			if ( ButtonsPressed == 7) {
-				// Key 3 pressed (Handle)
+		if (key_pressed()) {
+			if (key_3_pressed()) {
+				// Function to handle key 3 press
 			}
-			if ( ButtonsPressed == 11) {
-				// Key 2 pressed (Handle)
+			if (key_2_pressed()) {
+				// Function to handle key 3 press
 			}
-			if ( ButtonsPressed == 13) {
-				// Key 1 pressed (Handle)
+			if (key_1_pressed()) {
+				// Function to handle key 3 press
 			}
-			if ( ButtonsPressed == 14) {
-				// Key 0 pressed (Currently reset; no handler possible)
+			if (key_0_pressed()) {
+				// Function to handle key 3 press
 			}
-        }
-        OSTimeDlyHMSM(0,0,0,50); // Constant delay
+		}
 
-    }
+		OSTimeDlyHMSM(0,0,0,50);
+	}
 
 }
